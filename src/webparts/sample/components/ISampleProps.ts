@@ -1,7 +1,8 @@
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+
 export interface ISampleProps {
-  description: string;
-  isDarkTheme: boolean;
-  environmentMessage: string;
-  hasTeamsContext: boolean;
-  userDisplayName: string;
+ ListName:string;
+ siteurl:string;
+ context :WebPartContext;
 }
+// pagecontext, httpclient, sphttpclient,web,user,environment

@@ -71,6 +71,7 @@ export default class HelloWorld extends React.Component<IHelloWorldProps> {
       <Link href='https://www.google.com'>Google</Link>
       <SpinButton min={0} max={100} step={1} />
       <DatePicker label='DOJ'/>
+      <button>Simple Button</button>
     </form>
     </>
     );
