@@ -5,6 +5,7 @@ import { ISampleState } from './ISampleState';
 import { Web } from '@pnp/sp/webs';
 import { Dialog } from '@microsoft/sp-dialog';
 import { PrimaryButton, TextField } from '@fluentui/react';
+import {PeoplePicker,PrincipalType} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 export default class Sample extends React.Component<ISampleProps,ISampleState> {
   constructor(props:any){
     super(props);
@@ -13,7 +14,11 @@ export default class Sample extends React.Component<ISampleProps,ISampleState> {
       Email:"",
       Age:"",
       Salary:"",
-      PermanentAddress:""
+      PermanentAddress:"",
+      Manager:[],
+      MangaerId:[],
+      Admin:'',
+      AdminId:0
     }
   }
   ////Create item
@@ -28,7 +33,9 @@ const item=await list.items.add({
   EmailAddress:this.state.Email,
   Age:parseInt(this.state.Age),
   Salary:parseFloat(this.state.Salary),
-  Address:this.state.PermanentAddress
+  Address:this.state.PermanentAddress,
+  AdminId:this.state.AdminId,
+  ManagerId:{results:this.state.MangaerId}
 });
 Dialog.alert("Item Created Successfully");
 console.log(item);
@@ -37,7 +44,11 @@ this.setState({
   Email:"",
   Age:"",
   Salary:"",
-  PermanentAddress:""
+  PermanentAddress:"",
+   Manager:[],
+      MangaerId:[],
+      Admin:'',
+      AdminId:0
 })
     }
     catch(err){
@@ -83,11 +94,62 @@ private handleChange=(fieldvalue:keyof ISampleState,value:string|boolean|number)
         onChange={(_,event)=>this.handleChange("Salary",event||"")}
         prefix='₹' suffix='INR'
         />
+        <PeoplePicker
+        context={this.props.context as any}
+        titleText="Managers"
+        personSelectionLimit={3}
+        ensureUser={true}
+        showtooltip={true}
+        required={false}
+        onChange={this._getManagers}
+        defaultSelectedUsers={this.state.Manager}
+resolveDelay={1000}
+principalTypes={[PrincipalType.User]}
+webAbsoluteUrl={this.props.siteurl}
+        />
+         <PeoplePicker
+        context={this.props.context as any}
+        titleText="Admin"
+        personSelectionLimit={1}
+        ensureUser={true}
+        showtooltip={true}
+        required={false}
+        onChange={this._getAdmin}
+        defaultSelectedUsers={[this.state.Admin?this.state.Admin:""]} // ternary operator
+resolveDelay={1000}
+principalTypes={[PrincipalType.User]}
+webAbsoluteUrl={this.props.siteurl}
+        />
         <br/>
         <PrimaryButton text="Save" onClick={()=>this.createItem()} iconProps={{iconName:"Save"}}/>&nbsp;&nbsp;&nbsp;
         <PrimaryButton text="Cancel" onClick={()=>this.resetForm()} iconProps={{iconName:"cancel"}}/>
       </form>
       </>
     );
+  }
+  //Manager
+  private  _getManagers=(items:any):void=>{
+    const managers=items.map((item:any)=>item.text);
+    const managerIds=items.map((item:any)=>item.id);
+    this.setState({
+      Manager:managers,
+      MangaerId:managerIds
+    });
+  }
+  //Admin
+
+  private _getAdmin=(items:any):void=>{
+    if(items.length>0){
+      this.setState({
+        Admin:items[0].text,
+        AdminId:items[0].id
+      });
+    }
+    else{
+      this.setState({
+        Admin:"",
+        AdminId:0
+      });
+    }
   }
 }
