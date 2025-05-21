@@ -8,5 +8,8 @@ export interface ISampleState{
     MangaerId:any[];
     Admin:any;
     AdminId:any;
+    Department:any;
+    Gender:any;
+    City:any;
     //Admin.Displa, Admin.Department,
 }

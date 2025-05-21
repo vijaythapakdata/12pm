@@ -4,7 +4,7 @@ import type { ISampleProps } from './ISampleProps';
 import { ISampleState } from './ISampleState';
 import { Web } from '@pnp/sp/webs';
 import { Dialog } from '@microsoft/sp-dialog';
-import { PrimaryButton, TextField } from '@fluentui/react';
+import { ChoiceGroup, Dropdown, PrimaryButton, TextField } from '@fluentui/react';
 import {PeoplePicker,PrincipalType} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 export default class Sample extends React.Component<ISampleProps,ISampleState> {
   constructor(props:any){
@@ -18,7 +18,10 @@ export default class Sample extends React.Component<ISampleProps,ISampleState> {
       Manager:[],
       MangaerId:[],
       Admin:'',
-      AdminId:0
+      AdminId:0,
+      Department:"",
+      City:"",
+      Gender:""
     }
   }
   ////Create item
@@ -35,7 +38,10 @@ const item=await list.items.add({
   Salary:parseFloat(this.state.Salary),
   Address:this.state.PermanentAddress,
   AdminId:this.state.AdminId,
-  ManagerId:{results:this.state.MangaerId}
+  ManagerId:{results:this.state.MangaerId},
+  Department:this.state.Department,
+  Gender:this.state.Gender,
+  CityId:this.state.City
 });
 Dialog.alert("Item Created Successfully");
 console.log(item);
@@ -48,7 +54,10 @@ this.setState({
    Manager:[],
       MangaerId:[],
       Admin:'',
-      AdminId:0
+      AdminId:0,
+      Department:"",
+      City:"",
+      Gender:""
 })
     }
     catch(err){
@@ -61,10 +70,18 @@ Dialog.alert("Error in creating item");
   private resetForm(){
     this.setState({
       Name:"",
-      Email:"",
-      Age:"",
-      Salary:"",
-      PermanentAddress:""})
+  Email:"",
+  Age:"",
+  Salary:"",
+  PermanentAddress:"",
+   Manager:[],
+      MangaerId:[],
+      Admin:'',
+      AdminId:0,
+      Department:"",
+      City:"",
+      Gender:""
+    })
   }
 //Form Event
 private handleChange=(fieldvalue:keyof ISampleState,value:string|boolean|number):void=>{
@@ -119,6 +136,27 @@ webAbsoluteUrl={this.props.siteurl}
 resolveDelay={1000}
 principalTypes={[PrincipalType.User]}
 webAbsoluteUrl={this.props.siteurl}
+        />
+        <Dropdown
+        label='Department'
+        placeholder='Select Department'
+        options={this.props.DepartmentOptions}
+        onChange={(_,option)=>this.handleChange("Department",option?option.key:"")}
+        selectedKey={this.state.Department}
+        />
+          <ChoiceGroup
+        label='Gender'
+       
+        options={this.props.GenderOptions}
+        onChange={(_,option)=>this.handleChange("Gender",option?option.key:"")}
+        selectedKey={this.state.Gender}
+        />
+          <Dropdown
+        label='City'
+        placeholder='Select City'
+        options={this.props.CityOptions}
+        onChange={(_,option)=>this.handleChange("City",option?option.key:"")}
+        selectedKey={this.state.City}
         />
         <br/>
         <PrimaryButton text="Save" onClick={()=>this.createItem()} iconProps={{iconName:"Save"}}/>&nbsp;&nbsp;&nbsp;
