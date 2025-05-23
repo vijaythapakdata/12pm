@@ -4,7 +4,7 @@ import type { ISampleProps } from './ISampleProps';
 import { ISampleState } from './ISampleState';
 import { Web } from '@pnp/sp/webs';
 import { Dialog } from '@microsoft/sp-dialog';
-import { ChoiceGroup, Dropdown, PrimaryButton, TextField } from '@fluentui/react';
+import { ChoiceGroup, Dropdown, IDropdownOption, Label, PrimaryButton, TextField } from '@fluentui/react';
 import {PeoplePicker,PrincipalType} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 export default class Sample extends React.Component<ISampleProps,ISampleState> {
   constructor(props:any){
@@ -21,10 +21,29 @@ export default class Sample extends React.Component<ISampleProps,ISampleState> {
       AdminId:0,
       Department:"",
       City:"",
-      Gender:""
+      Gender:"",
+      Attachments:[],
+      Skills:[]
     }
   }
+  //Handle File
+  private handleFileChange=(event:React.ChangeEvent<HTMLInputElement>)=>{
+    const files=event.target.files;
+    if(files){
+      this.setState({
+        Attachments:Array.from(files)
+      })
+    }
+  }
+  //Get Skills
+  private _getSkills=(event:React.FormEvent<HTMLDivElement>,option:IDropdownOption):void=>{
+    const selectedkey=option.selected?[...this.state.Skills,option.key as string]:this.state.Skills.filter((key:any)=>key!==option.key);
+    this.setState({
+      Skills:selectedkey
+    })
+  }
   ////Create item
+  
 
   private async createItem(){
     try{
@@ -41,8 +60,15 @@ const item=await list.items.add({
   ManagerId:{results:this.state.MangaerId},
   Department:this.state.Department,
   Gender:this.state.Gender,
-  CityId:this.state.City
+  CityId:this.state.City,
+  Skills:{results:this.state.Skills},
 });
+const itemId=item.data.Id;
+//upload mulitple files
+for(const file of this.state.Attachments){
+  const arrayBuffer=await file.arrayBuffer();
+  await list.items.getById(itemId).attachmentFiles.add(file.name,arrayBuffer);
+}
 Dialog.alert("Item Created Successfully");
 console.log(item);
 this.setState({
@@ -80,7 +106,9 @@ Dialog.alert("Error in creating item");
       AdminId:0,
       Department:"",
       City:"",
-      Gender:""
+      Gender:"",
+        Attachments:[],
+      Skills:[]
     })
   }
 //Form Event
@@ -158,6 +186,18 @@ webAbsoluteUrl={this.props.siteurl}
         onChange={(_,option)=>this.handleChange("City",option?option.key:"")}
         selectedKey={this.state.City}
         />
+           <Dropdown
+        label='Skills'
+        placeholder='Select skils'
+        options={this.props.SkillsOptions}
+        // onChange={(_,option)=>this.handleChange("City",option?option.key:"")}
+        // selectedKey={this.state.City}
+        multiSelect
+        defaultSelectedKeys={this.state.Skills}
+        onChange={this._getSkills}
+        />
+        <Label>Attachments</Label>
+        <input type="file" multiple onChange={this.handleFileChange}/>
         <br/>
         <PrimaryButton text="Save" onClick={()=>this.createItem()} iconProps={{iconName:"Save"}}/>&nbsp;&nbsp;&nbsp;
         <PrimaryButton text="Cancel" onClick={()=>this.resetForm()} iconProps={{iconName:"cancel"}}/>

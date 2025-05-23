@@ -11,5 +11,7 @@ export interface ISampleState{
     Department:any;
     Gender:any;
     City:any;
+    Attachments:any[];
+    Skills:any[];
     //Admin.Displa, Admin.Department,
 }
